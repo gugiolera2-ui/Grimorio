@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- PWA Metatags -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#c28f2c">
+    
+    <!-- iOS support -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Grimorio v.3.1">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    
+    <!-- Windows / IE -->
+    <meta name="msapplication-TileColor" content="#1a1a1a">
+    <meta name="msapplication-TileImage" content="icons/icon-144.png">
+    
+    <title>Grimorio v.3.1 - D&D 5e Spell Manager</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="app">
+        <!-- Header con nome personaggio e CD/ATK -->
+        <div class="header">
+            <div class="version-badge">
+                <span class="version-text">Grimorio v.3.1</span>
+            </div>
+            <div class="stats-row">
+                <div id="quick-stats" class="quick-stats">
+                    <!-- CD e ATK verranno inseriti qui -->
+                </div>
+                <button id="long-rest-btn" class="rest-btn">🛏️ Riposo Lungo</button>
+                <button id="settings-btn" class="settings-btn" title="Impostazioni">⚙️</button>
+            </div>
+            <div id="slot-tracker" class="slot-tracker">
+                <!-- Slot incantesimi -->
+            </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="tab-nav">
+            <button id="combat-tab" class="tab-btn active" data-tab="combat">⚔️ Lancio</button>
+            <button id="archive-tab" class="tab-btn" data-tab="archive">📚 Archivio</button>
+            <button id="stats-tab" class="tab-btn" data-tab="stats">📊 Slot</button>
+            <button id="character-tab" class="tab-btn" data-tab="character">🧙 Personaggio</button>
+        </div>
+
+        <!-- Barra di ricerca -->
+        <div class="search-bar" id="search-bar" style="display: none;">
+            <input type="text" 
+                   id="spell-search" 
+                   placeholder="🔍 Cerca incantesimo..." 
+                   autocomplete="off">
+            <button id="clear-search" class="clear-search-btn">✕</button>
+        </div>
+
+        <!-- Contenuto principale -->
+        <div id="main-view" class="main-view">
+            <!-- Il contenuto viene renderizzato qui -->
+        </div>
+    </div>
+
+    <!-- Scripts dei dati degli incantesimi -->
+    <script src="data/spells/v5_lvl0.js"></script>
+    <script src="data/spells/v5_lvl1.js"></script>
+    <script src="data/spells/v5_lvl2.js"></script>
+    <script src="data/spells/v5_lvl3.js"></script>
+    <script src="data/spells/v5_lvl4.js"></script>
+    <script src="data/spells/v5_lvl5.js"></script>
+    <script src="data/spells/v5_lvl6.js"></script>
+    <script src="data/spells/v5_lvl7.js"></script>
+    <script src="data/spells/v5_lvl8.js"></script>
+    <script src="data/spells/v5_lvl9.js"></script>
+
+    <!-- Scripts dell'applicazione -->
+    <script src="js/database.js"></script>
+    <script src="js/character.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/app.js"></script>
+
+    <!-- Service Worker Registration -->
+    <script>
+        if ("serviceWorker" in navigator && (location.protocol === "https:" || location.hostname === "localhost")) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("./service-worker.js")
+                    .then(registration => {
+                        console.log("✅ Service Worker registrato con successo:", registration.scope);
+                        
+                        // Controlla aggiornamenti
+                        registration.addEventListener("updatefound", () => {
+                            console.log("📦 Nuova versione del Service Worker trovata");
+                            const newWorker = registration.installing;
+                            
+                            newWorker.addEventListener("statechange", () => {
+                                if (newWorker.state === "installed") {
+                                    if (navigator.serviceWorker.controller) {
+                                        console.log("🔄 Nuova versione disponibile. Ricarica per aggiornare.");
+                                        // Qui potresti mostrare una notifica all'utente
+                                    }
+                                }
+                            });
+                        });
+                    })
+                    .catch(error => {
+                        console.error("❌ Registrazione Service Worker fallita:", error);
+                    });
+                    
+                // Controlla aggiornamenti ogni ora
+                setInterval(() => {
+                    navigator.serviceWorker.getRegistration().then(reg => {
+                        if (reg) reg.update();
+                    });
+                }, 60 * 60 * 1000); // 1 ora
+            });
+        } else {
+            console.log("ℹ️ Service Worker non supportato dal browser");
+        }
+    </script>
+</body>
+</html>
